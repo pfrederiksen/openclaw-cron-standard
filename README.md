@@ -55,6 +55,14 @@ That makes it friendlier for human review and reputation scanning.
 ## Files
 
 - `SKILL.md` - the actual OpenClaw skill definition
+- `skill.toml` - machine-readable skill metadata
+- `tools/validate_skill.py` - lightweight repository consistency check
+
+## Validate
+
+```bash
+python3 tools/validate_skill.py
+```
 
 ## Publish
 
