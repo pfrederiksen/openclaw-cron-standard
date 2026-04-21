@@ -1,0 +1,17 @@
+[skill]
+name = "openclaw-cron-standard"
+version = "0.1.0"
+description = "Standardize OpenClaw cron wrappers and prompts to a safe shared contract."
+license = "MIT"
+
+[openclaw.requires]
+bins = ["python3"]
+
+[checks]
+focus = [
+  "stale result artifacts",
+  "duplicate claim sentinels",
+  "wrapper and prompt contract drift",
+  "cron delivery status",
+]
+
