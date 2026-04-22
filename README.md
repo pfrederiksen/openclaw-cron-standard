@@ -10,6 +10,7 @@ This skill captures a hardened pattern for OpenClaw cron jobs that use:
 - wrapper scripts
 - result JSON artifacts
 - cron-delivered text responses
+- split cron runtime state in `jobs-state.json`
 
 It helps prevent common cron breakage modes such as:
 
@@ -17,6 +18,8 @@ It helps prevent common cron breakage modes such as:
 - `already claimed` vs `already-claimed` string drift
 - prompts reading result artifacts unconditionally
 - silent `not-delivered` runs caused by wrapper/prompt contract mismatch
+- misleading health checks caused by reading embedded `job.state` from `jobs.json`
+- notification regressions caused by changing reply-delivery jobs to `delivery.mode: "none"`
 
 ## Standard contract
 
@@ -34,6 +37,19 @@ It helps prevent common cron breakage modes such as:
 2. If it prints `ALREADY_CLAIMED`, reply with `NO_REPLY`.
 3. Only then read the result JSON.
 4. Use the result artifact as the source of truth only for real runs.
+
+### Health/debug rules
+
+1. Treat `/root/.openclaw/cron/jobs.json` as job definitions.
+2. Read live runtime state from `/root/.openclaw/cron/jobs-state.json`.
+3. Do not read embedded `job.state` from `jobs.json` for health status.
+4. Distinguish a missing `jobs-state.json` record from a real `never-recorded` run state.
+
+### Delivery rules
+
+1. Use `delivery.mode: "announce"` for jobs that depend on reply-text delivery.
+2. Use `delivery.mode: "none"` for jobs that send through the `message` tool or are intentionally silent.
+3. Do not assume every cron job should be normalized to `delivery.mode: "none"`.
 
 ## Why publish this as a skill
 

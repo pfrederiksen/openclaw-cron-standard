@@ -31,6 +31,20 @@ For cron prompts:
 3. Only then read the result JSON.
 4. Never read a stale artifact after a duplicate-claim guard path.
 
+For cron health and debug tooling:
+
+1. Treat `/root/.openclaw/cron/jobs.json` as the job definition store.
+2. Read live runtime state from `/root/.openclaw/cron/jobs-state.json`.
+3. Do not rely on embedded `job.state` in `jobs.json`; it may be empty or stale.
+4. Report missing entries from `jobs-state.json` separately from jobs that have never run.
+
+For cron delivery configuration:
+
+1. Infer the expected delivery mode from the job contract.
+2. Use `delivery.mode: "announce"` for jobs that rely on reply-text delivery.
+3. Use `delivery.mode: "none"` only for jobs that send explicitly through the `message` tool or are intentionally silent.
+4. Do not bulk-normalize every job to `delivery.mode: "none"` unless each job has been migrated away from reply-text delivery.
+
 ## Why this matters
 
 The fragile failure mode is usually contract drift across three places:
@@ -38,6 +52,8 @@ The fragile failure mode is usually contract drift across three places:
 - wrapper behavior
 - prompt behavior
 - claim string expectations such as `already claimed` vs `already-claimed`
+- runtime state location
+- delivery mode expectations
 
 That drift can turn a healthy duplicate-run guard into a fake failure or a silent not-delivered run.
 
@@ -56,6 +72,9 @@ Keep wrapper-specific business logic outside the shared helper.
 - no result artifact written on `ALREADY_CLAIMED`
 - stale result file is removed before each run
 - prompts check the sentinel before reading the artifact
+- health/debug tools read `jobs-state.json`, not embedded `job.state`
+- reply-delivery jobs use `delivery.mode: "announce"`
+- explicit `message`-tool or intentionally silent jobs use `delivery.mode: "none"`
 - validator passes after edits
 - dead scratch wrappers and tmp scripts are removed if unreferenced
 
@@ -63,8 +82,10 @@ Keep wrapper-specific business logic outside the shared helper.
 
 1. Patch the wrapper contract first.
 2. Patch the live cron prompt second.
-3. Validate with the cron validator.
-4. Remove dead one-off scripts after reference checks.
+3. Patch the job delivery contract.
+4. Validate health tooling against `jobs-state.json`.
+5. Validate with the cron validator.
+6. Remove dead one-off scripts after reference checks.
 
 ## Scope guidance
 

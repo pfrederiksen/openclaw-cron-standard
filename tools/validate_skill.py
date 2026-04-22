@@ -16,12 +16,26 @@ REQUIRED_SKILL_TERMS = (
     "result JSON",
     "stale",
     "claim",
+    "jobs-state.json",
+    "job.state",
+    'delivery.mode: "announce"',
+    'delivery.mode: "none"',
+    "reply-text delivery",
+    "message",
+)
+REQUIRED_README_TERMS = (
+    "jobs-state.json",
+    "job.state",
+    'delivery.mode: "announce"',
+    'delivery.mode: "none"',
+    "reply-text delivery",
 )
 
 
 def main() -> int:
     errors: list[str] = []
     skill_path = ROOT / "SKILL.md"
+    readme_path = ROOT / "README.md"
     manifest_path = ROOT / "skill.toml"
 
     if not skill_path.exists():
@@ -33,6 +47,14 @@ def main() -> int:
             errors.append(f"SKILL.md is missing required terms: {', '.join(missing_terms)}")
         if not re.search(r"^---\n.*?\n---", skill_text, flags=re.DOTALL):
             errors.append("SKILL.md is missing YAML front matter")
+
+    if not readme_path.exists():
+        errors.append("README.md is missing")
+    else:
+        readme_text = readme_path.read_text(encoding="utf-8")
+        missing_terms = [term for term in REQUIRED_README_TERMS if term not in readme_text]
+        if missing_terms:
+            errors.append(f"README.md is missing required terms: {', '.join(missing_terms)}")
 
     if not manifest_path.exists():
         errors.append("skill.toml is missing")
@@ -50,4 +72,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
