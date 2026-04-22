@@ -1,6 +1,6 @@
 # openclaw-cron-standard
 
-A small OpenClaw skill for standardizing cron wrappers and cron prompt contracts.
+A small OpenClaw skill for standardizing cron wrappers, cron prompt contracts, and delivery-mode expectations.
 
 ## What it does
 
@@ -17,6 +17,7 @@ It helps prevent common cron breakage modes such as:
 - `already claimed` vs `already-claimed` string drift
 - prompts reading result artifacts unconditionally
 - silent `not-delivered` runs caused by wrapper/prompt contract mismatch
+- silent notification failures caused by wrong `delivery.mode` for the job's actual delivery pattern
 
 ## Standard contract
 
@@ -34,10 +35,19 @@ It helps prevent common cron breakage modes such as:
 2. If it prints `ALREADY_CLAIMED`, reply with `NO_REPLY`.
 3. Only then read the result JSON.
 4. Use the result artifact as the source of truth only for real runs.
+5. Make sure the cron `delivery.mode` matches the prompt's actual delivery contract.
+
+### Delivery-mode rules
+
+Use `delivery.mode: announce` when the cron returns user-visible text as its final reply.
+
+Use `delivery.mode: none` when the cron is intentionally silent or sends alerts explicitly through the `message` tool.
+
+If you bulk-flip reply-delivery jobs to `none`, they can still run and finalize successfully while never actually notifying the user.
 
 ## Why publish this as a skill
 
-Cron systems tend to become fragile through small contract drift across scripts and prompts. This skill packages the safe pattern so it can be applied consistently instead of rediscovered in production.
+Cron systems tend to become fragile through small contract drift across scripts, prompts, and delivery settings. This skill packages the safe pattern so it can be applied consistently instead of rediscovered in production.
 
 ## Safety / scanner friendliness
 
