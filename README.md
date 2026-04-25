@@ -87,3 +87,7 @@ Use the ClawHub CLI to publish the skill folder.
 ## License
 
 MIT
+
+## Download History
+
+[![Download History](https://skill-history.com/chart/pfrederiksen/openclaw-cron-standard.svg)](https://skill-history.com/pfrederiksen/openclaw-cron-standard)
